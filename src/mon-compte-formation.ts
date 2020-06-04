@@ -1,5 +1,13 @@
 import * as puppeteer from "puppeteer";
 
+let browser;
+
+(async function () {
+  browser = await puppeteer.launch({
+    args: ["--no-sandbox"],
+  });
+})();
+
 const wait = async function (timeout: number) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, timeout);
@@ -8,7 +16,6 @@ const wait = async function (timeout: number) {
 
 export const getAmount = async (taxNumber: string, password: string) => {
   let amount;
-  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.goto(
@@ -60,10 +67,10 @@ export const getAmount = async (taxNumber: string, password: string) => {
     // Get the amount
     amount = await page.$eval(amountSelector, (el) => el.innerText);
 
-    await browser.close();
+    await page.close();
   } catch (error) {
     await page.screenshot({ path: "error.png" });
-    await browser.close();
+    await page.close();
     throw error;
   }
 
